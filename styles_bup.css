@@ -1,0 +1,128 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden; 
+  background-color: #0f172a; 
+}
+
+#viewport {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* El lienzo gigante sólido corregido */
+#canvas {
+  position: absolute;
+  width: 5000px;  
+  height: 5000px;
+  top: 0;          /* CORREGIDO: Inicia en el origen absoluto */
+  left: 0;         /* CORREGIDO: Inicia en el origen absoluto */
+  background-color: #0f172a;
+  cursor: grab;
+  transform-origin: 0 0; 
+}
+
+#canvas:active {
+  cursor: grabbing;
+}
+
+.block {
+  position: absolute;
+  width: 1000px;
+  color: rgba(255, 255, 255, 0.95); 
+  background: rgba(30, 41, 59, 0.7); /* CORREGIDO: Fondo semi-transparente para que sea legible */
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.block h2 { 
+  margin-bottom: 18px; 
+}
+.block h3{
+  text-align: left;
+  margin-left: 45px;
+  color: lightblue;
+  text-decoration: underline;
+  margin-bottom: 14px;
+}
+.block p { 
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.6; 
+  text-align: justify;
+  text-indent: 45px;
+  margin-bottom: 10px;
+}
+
+.block .cita-larga{
+  text-indent: 0px;
+  margin-left: 90px;
+  margin-right: 90px;
+  line-height: 1.4;
+}
+.caratula h1{
+   color: rgba(255, 255, 255, 0.95);
+   font-size: 80px; 
+  margin-bottom: 12px; 
+  text-align: center;
+}
+.block ul, ol{
+  text-align: justify;
+  margin-left: 90px;
+  line-height: 1.6;
+}
+
+.block ul, ol li:last-child{
+  margin-bottom: 18px;
+}
+.caratula > h2, h3{
+  text-align: end;
+}
+
+/* MENÚ DE NAVEGACIÓN ESTÁTICO */
+#menu {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100; 
+  background: rgba(15, 23, 42, 0.85);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+#menu h3 { 
+  color: #fff; 
+  font-size: 0.9rem; 
+  text-transform: uppercase; 
+  margin-bottom: 10px; 
+}
+
+#menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  padding: 8px 12px;
+  margin: 4px 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+#menu button:hover { 
+  background: rgba(255, 255, 255, 0.1); 
+  color: #fff; 
+}
