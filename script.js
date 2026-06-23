@@ -7,22 +7,22 @@ let posX = 0, posY = 0;
 let scale = 1;          
 const duracionTransicion = 1.5; 
 
-
 let historialBloques = [];
-let bloqueActual = 0; // Registra en qué bloque está parado el lector
+let bloqueActual = 0; 
+let historialCoordenadas = [];
 
 // ==========================================
 // CONTROL CENTRALIZADO DE POSICIONES
 // ==========================================
-// CORREGIDO: Coordenadas optimizadas para evitar solapamientos con textos extra largos
 const MAPA_NAVEGACION = {
-  0: { x: 1200, y: -250,    scale: 1 },   // Portada
+  0: { x: 1200, y: -250, scale: 1 },   // Portada
   1: { x: 1200, y: 1000, scale: 1 },   // 1. Sobre Refik Anadol
   2: { x: 1200, y: 1350, scale: 1 },   // 2. Antecedentes
-  3: { x: 1200, y: 1900, scale: 1 },   // 3. En la mente de Gaudí (muy largo)
+  3: { x: 1200, y: 1900, scale: 1 },   // 3. En la mente de Gaudí
   4: { x: 1200, y: 5050, scale: 1 },   // 4. Materia prima
   5: { x: 1200, y: 6220, scale: 1 },   // 5. Anadol y la IA
-  6: { x: 1200, y: 7080, scale: 1 }    // Referencias bibliográficas
+  6: { x: 1200, y: 7080, scale: 1 },   // Referencias bibliográficas
+  7: { x: 2500, y: 1900, scale: 1 }    
 };
 
 // 1. EVENTO AL HACER CLIC (INICIAR ARRASTRE)
@@ -54,19 +54,15 @@ function actualizarTransformacion() {
   canvas.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
 }
 
-
 // 4. EVENTO DE NAVEGACIÓN MULTIDIRECCIONAL DETECTANDO DELTAX
 viewport.addEventListener('wheel', (e) => {
   e.preventDefault();
 
-  // ESCENARIO A: Zoom inteligente (Con tecla ALT presionada)
   if (e.altKey) {
     const mouseX = e.clientX;
     const mouseY = e.clientY;
-
     const canvasX = (mouseX - posX) / scale;
     const canvasY = (mouseY - posY) / scale;
-
     const factorZoom = 0.08;
     
     if (e.deltaY < 0) {
@@ -81,45 +77,33 @@ viewport.addEventListener('wheel', (e) => {
     canvas.style.transition = 'transform 0.1s ease-out'; 
     actualizarTransformacion();
   } 
-  // ESCENARIO B: Scroll Horizontal (Con tecla SHIFT presionada o trackpad lateral)
   else if (e.shiftKey) {
     const velocidadScrollH = 1.2;
-    
-    // CORREGIDO: Si deltaX tiene valor, lo usamos directamente. Si no (raros casos), usamos deltaY.
     const movimientoX = e.deltaX !== 0 ? e.deltaX : e.deltaY;
-    
     posX = posX - (movimientoX * velocidadScrollH);
-    
     canvas.style.transition = 'none'; 
     actualizarTransformacion();
   }
-  // ESCENARIO C: Scroll Vertical tradicional (Rueda sola)
   else {
     const velocidadScrollV = 1.2; 
-    
     posY = posY - (e.deltaY * velocidadScrollV);
-    
     canvas.style.transition = 'none'; 
     actualizarTransformacion();
   }
 }, { passive: false });
 
-
-
-// 5. NAVEGACIÓN AUTOMÁTICA CON CONFIGURACIÓN DE HISTORIAL
-function irABloque(indice, esRetorno = false) {
+// 5. NAVEGACIÓN AUTOMÁTICA CON MEMORIA DE COORDENADAS EXACTAS
+// CORREGIDO: Añadido el parámetro 'forzarInstantaneo' para el arranque sin parpadeos
+function irABloque(indice, esRetorno = false, forzarInstantaneo = false) {
   const destino = MAPA_NAVEGACION[indice];
   if (!destino) return;
 
-  // Si no es un viaje de regreso, guardamos el bloque actual en el historial antes de irnos
-  if (!esRetorno && indice !== bloqueActual) {
-    historialBloques.push(bloqueActual);
-    actualizarBotonRegreso();
-  }
-
-  // Actualizamos cuál es el bloque donde estará la cámara ahora
-  bloqueActual = indice;
-  if (esRetorno) {
+  if (!esRetorno) {
+    historialCoordenadas.push({
+      x: posX,
+      y: posY,
+      s: scale
+    });
     actualizarBotonRegreso();
   }
 
@@ -130,31 +114,56 @@ function irABloque(indice, esRetorno = false) {
   posX = (window.innerWidth / 2) - (destino.x + (anchoBloque / 2)) * scale;
   posY = margenSuperior - (destino.y * scale);
   
-  canvas.style.transition = `transform ${duracionTransicion}s cubic-bezier(0.25, 1, 0.5, 1)`;
+  // CORREGIDO: Si se solicita salto instantáneo, apaga la animación por completo
+  if (forzarInstantaneo) {
+    canvas.style.transition = 'none';
+  } else {
+    canvas.style.transition = `transform ${duracionTransicion}s cubic-bezier(0.25, 1, 0.5, 1)`;
+  }
+  
   actualizarTransformacion();
 }
 
-// NUEVA FUNCIÓN: Ejecuta el regreso al bloque anterior
+// Viaja al punto exacto del espacio donde estuvo el usuario
 function volverAlBloqueAnterior() {
-  if (historialBloques.length === 0) return;
+  if (historialCoordenadas.length === 0) return;
   
-  // Extraemos el último índice guardado en la lista
-  const bloqueAnterior = historialBloques.pop();
+  const ultimaPosicion = historialCoordenadas.pop();
+  posX = ultimaPosicion.x;
+  posY = ultimaPosicion.y;
+  scale = ultimaPosicion.s;
   
-  // Viajamos al bloque avisándole a la función que es un retorno (true)
-  irABloque(bloqueAnterior, true);
+  canvas.style.transition = `transform ${duracionTransicion}s cubic-bezier(0.25, 1, 0.5, 1)`;
+  actualizarTransformacion();
+  actualizarBotonRegreso();
 }
 
-// NUEVA FUNCIÓN: Muestra u oculta el botón en pantalla según el historial
 function actualizarBotonRegreso() {
   const boton = document.getElementById('btn-regresar');
   if (!boton) return;
 
-  if (historialBloques.length > 0) {
+  if (historialCoordenadas.length > 1) {
     boton.classList.add('visible');
   } else {
     boton.classList.remove('visible');
   }
 }
 
-irABloque(0);
+// CORREGIDO: Purga el historial del arranque para evitar saltos al presionar "Anterior"
+window.addEventListener('load', () => {
+  posX = 0;
+  posY = 0;
+  scale = 1;
+  actualizarTransformacion();
+  
+  // 1. Viaja de forma instantánea e invisible a la portada
+  irABloque(0, false, true); 
+  
+  // 2. TRUCO DE PURGA: Vaciamos el historial que generó este primer viaje de inicialización
+  historialCoordenadas = [];
+  actualizarBotonRegreso(); // Asegura que el botón "Volver" nazca oculto
+  
+  // 3. Revelamos el lienzo ya centrado y limpio
+  canvas.style.opacity = '1';
+});
+console.log(historialCoordenadas);

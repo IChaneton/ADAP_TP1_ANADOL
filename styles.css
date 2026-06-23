@@ -17,16 +17,19 @@ body {
   overflow: hidden;
 }
 
-/* El lienzo gigante sólido corregido */
 #canvas {
   position: absolute;
   width: 5000px;  
   height: 10000px;
-  top: 0;          /* CORREGIDO: Inicia en el origen absoluto */
-  left: 0;         /* CORREGIDO: Inicia en el origen absoluto */
+  top: 0;          
+  left: 0;         
   background-color: #0f172a;
   cursor: grab;
   transform-origin: 0 0; 
+  /* NUEVO: Nace invisible para esconder el parpadeo del arranque */
+  opacity: 0;
+  /* Transición ultra rápida para que aparezca suavemente una vez centrado */
+  transition: opacity 0.2s ease-in-out; 
 }
 
 #canvas:active {
@@ -42,10 +45,26 @@ body {
   border-radius: 12px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: auto;
+  
 }
+.transicion{
+  text-align: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  font-size: 70px;
+  transform: scaleX(1.8);
+  opacity: 20%;
+}
+
 .media{
   width: auto;
   border: red;
+}
+.media p{
+  text-align: end;
+  color: #0f172a;
 }
 
 .block h2 { 
@@ -68,6 +87,7 @@ body {
 }
 .enlace-interno{
   color: brown;
+  cursor: pointer;
 }
 
 .block .cita-larga{
