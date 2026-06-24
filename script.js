@@ -11,18 +11,25 @@ let historialBloques = [];
 let bloqueActual = 0; 
 let historialCoordenadas = [];
 
+// NUEVA VARIABLE: Guardará el factor de adaptación según el monitor del lector
+let escalaBaseResponsiva = 1; 
+
 // ==========================================
 // CONTROL CENTRALIZADO DE POSICIONES
 // ==========================================
 const MAPA_NAVEGACION = {
   0: { x: 1200, y: -250, scale: 1 },   // Portada
   1: { x: 1200, y: 1000, scale: 1 },   // 1. Sobre Refik Anadol
-  2: { x: 1200, y: 1350, scale: 1 },   // 2. Antecedentes
-  3: { x: 1200, y: 1900, scale: 1 },   // 3. En la mente de Gaudí
-  4: { x: 1200, y: 5050, scale: 1 },   // 4. Materia prima
-  5: { x: 1200, y: 6220, scale: 1 },   // 5. Anadol y la IA
-  6: { x: 1200, y: 7080, scale: 1 },   // Referencias bibliográficas
-  7: { x: 2500, y: 1900, scale: 1 }    
+  2: { x: 1200, y: 1450, scale: 1 },   // 2. Antecedentes
+  3: { x: 1200, y: 2150, scale: 1 },   // 3. En la mente de Gaudí
+  4: { x: 1200, y: 5750, scale: 1 },   // 4. Materia prima
+  5: { x: 1200, y: 7200, scale: 1 },   // 5. Anadol y la IA
+  6: { x: 1200, y: 8200, scale: 1 },   // Referencias bibliográficas
+  7: { x: 2500, y: 1900, scale: 1 },    // Gaudi Cube Videos
+  8: { x: -100, y: 1250, scale: 0.6 },    // Antecedentes
+  9: { x: -100, y: 4000, scale: 0.7 }    // Otros trabajos
+
+
 };
 
 // 1. EVENTO AL HACER CLIC (INICIAR ARRASTRE)
@@ -113,7 +120,7 @@ function irABloque(indice, esRetorno = false, forzarInstantaneo = false) {
     actualizarBotonRegreso();
   }
 
-  scale = destino.scale;
+  scale = destino.scale * escalaBaseResponsiva;
   const anchoBloque = 1000; 
   const margenSuperior = 60; 
 
@@ -155,21 +162,28 @@ function actualizarBotonRegreso() {
   }
 }
 
-// CORREGIDO: Purga el historial del arranque para evitar saltos al presionar "Anterior"
+// CORREGIDO: Calcula la escala responsiva adaptada al ALTO del monitor
 window.addEventListener('load', () => {
+  // Tomamos 1080px (Alto Full HD estándar) como tu base de diseño original
+  const altoDisenoBase = 930;
+  const altoPantallaUsuario = window.innerHeight;
+  
+  // Ej: Si abren la web en una notebook con un alto de 768px, el factor será ~0.71.
+  // Mantenemos los límites de seguridad para proteger la lectura.
+  escalaBaseResponsiva = Math.max(0.5, Math.min(1.2, altoPantallaUsuario / altoDisenoBase));
+
   posX = 0;
   posY = 0;
-  scale = 1;
+  scale = escalaBaseResponsiva; // Asignamos el zoom responsivo vertical
   actualizarTransformacion();
   
-  // 1. Viaja de forma instantánea e invisible a la portada
+  // Viaja de forma instantánea e invisible a la portada (Bloque 0)
   irABloque(0, false, true); 
   
-  // 2. TRUCO DE PURGA: Vaciamos el historial que generó este primer viaje de inicialización
   historialCoordenadas = [];
-  actualizarBotonRegreso(); // Asegura que el botón "Volver" nazca oculto
+  actualizarBotonRegreso(); 
   
-  // 3. Revelamos el lienzo ya centrado y limpio
   canvas.style.opacity = '1';
 });
+
 console.log(historialCoordenadas);
