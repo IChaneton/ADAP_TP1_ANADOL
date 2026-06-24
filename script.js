@@ -49,9 +49,15 @@ window.addEventListener('mouseup', () => {
   isDragging = false;
 });
 
-// FUNCIÓN ESENCIAL REPARADA: Aplica los movimientos físicos al lienzo
+// FUNCIÓN ACTUALIZADA: Mueve los bloques y desfasa la retícula infinita al mismo tiempo
 function actualizarTransformacion() {
+  // 1. Desplazamos y escalamos el canvas contenedor de textos
   canvas.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+  
+  // 2. Inyectamos los valores a las variables CSS del viewport para mover la cuadrícula de fondo
+  viewport.style.setProperty('--x', `${posX}px`);
+  viewport.style.setProperty('--y', `${posY}px`);
+  viewport.style.setProperty('--scale', scale);
 }
 
 // 4. EVENTO DE NAVEGACIÓN MULTIDIRECCIONAL DETECTANDO DELTAX

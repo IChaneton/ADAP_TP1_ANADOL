@@ -15,20 +15,31 @@ body {
   height: 100vh;
   position: relative;
   overflow: hidden;
+  
+  /* FONDO DEFINITIVO: El lienzo es oscuro profundo */
+  background-color: #0b0f19; 
+
+  /* RETÍCULA INFINITA: Se dibuja aquí para que nunca se le vean los límites */
+  background-image: 
+    linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+  
+  /* MATEMÁTICA INTERACTIVA: El tamaño y la posición de la cuadrícula mutan con el zoom y el arrastre */
+  background-size: calc(40px * var(--scale, 1)) calc(40px * var(--scale, 1));
+  background-position: calc(var(--x, 0px)) calc(var(--y, 0px));
 }
 
+/* El lienzo gigante se vuelve invisible, actuando solo como contenedor físico de los bloques */
 #canvas {
   position: absolute;
   width: 5000px;  
   height: 10000px;
   top: 0;          
   left: 0;         
-  background-color: #0f172a;
+  background-color: transparent; /* CORREGIDO: Transparente para ver la retícula infinita de atrás */
   cursor: grab;
   transform-origin: 0 0; 
-  /* NUEVO: Nace invisible para esconder el parpadeo del arranque */
   opacity: 0;
-  /* Transición ultra rápida para que aparezca suavemente una vez centrado */
   transition: opacity 0.2s ease-in-out; 
 }
 
@@ -39,23 +50,53 @@ body {
 .block {
   position: absolute;
   width: 1000px;
-  color: rgba(255, 255, 255, 0.95); 
-  background: rgba(30, 41, 59, 0.7); /* CORREGIDO: Fondo semi-transparente para que sea legible */
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: auto;
+  color: rgba(248, 250, 252, 0.95); /* Blanco brillante más limpio */
   
+  /* Efecto Cristal Translúcido Avanzado */
+  background: rgba(15, 23, 42, 0.0); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  padding: 70px; /* Un poco más de aire interno para lectura académica */
+  border-radius: 6px; /* Bordes industriales, menos redondeados */
+  
+  /* Borde de neón digital sutil y sombra profunda */
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7),
+              0 0 30px rgba(56, 189, 248, 0.03);
+  
+  z-index: 1;
 }
+figure{
+  position: absolute;
+  color: rgba(248, 250, 252, 0.95); /* Blanco brillante más limpio */
+}
+
 .transicion{
+  border: none;
+   box-shadow: none;
+}
+
+.transicion h1{
+  margin: 50px 0px;
   text-align: center;
   background: transparent;
-  border: none;
-  box-shadow: none;
+ border: none;
+ 
   font-size: 70px;
   transform: scaleX(1.8);
   opacity: 20%;
+}
+
+.transicion p{ 
+  
+  font-size: 16px;
+
+  font-weight: normal;
+  opacity: 75%;
+}
+.transicion p:last-of-type{
+  text-align: end;
 }
 
 .media{
@@ -70,13 +111,16 @@ body {
 .block h2 { 
   margin-bottom: 18px; 
 }
-.block h3{
+/* Subtítulos destacados estilo métricas */
+.block h3 {
   text-align: left;
-  margin-left: 45px;
-  color: lightblue;
-  text-decoration: underline;
-  margin-bottom: 14px;
   margin-top: 30px;
+  margin-left: 45px;
+  color: #38bdf8; /* Cian digital */
+  
+  font-size: 1rem;
+  letter-spacing: 1px;
+  margin-bottom: 18px;
 }
 .block p { 
   color: rgba(255, 255, 255, 0.95);
@@ -90,11 +134,16 @@ body {
   cursor: pointer;
 }
 
-.block .cita-larga{
+.block .cita-larga {
   text-indent: 0px;
-  margin-left: 90px;
-  margin-right: 90px;
-  line-height: 1.4;
+  margin: 25px 60px;
+  padding-left: 20px;
+  line-height: 1.5;
+  color: #94a3b8; /* Gris plata suave */
+  
+  
+  /* Línea vertical de neón a la izquierda de la cita */
+  border-left: 2px solid #38bdf8; 
 }
 .caratula > h1{
    color: rgba(255, 255, 255, 0.95);
@@ -126,7 +175,9 @@ body {
   text-align: left;
   margin-bottom: 22px;
 }
-
+a{
+  color:#38bdf8;
+}
 /* MENÚ DE NAVEGACIÓN ESTÁTICO */
 #menu {
   position: fixed;
