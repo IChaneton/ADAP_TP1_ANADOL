@@ -32,7 +32,7 @@ const MAPA_NAVEGACION = {
   8: { x: -100, y: 1250, scale: 0.9 },  // Antecedentes artísticos
   9: { x: -100, y: 4000, scale: 0.7 },  // Otros trabajos
   10: { x: 2500, y: 3550, scale: 0.8 }, // Pioneros
-  11: { x: 100, y: 8190, scale: 0.9 },  // Libros
+  11: { x: 50, y: 8190, scale: 0.9 },  // Libros
   12: { x: -300, y: 2850, scale: 1 }    // Data Artists
 };
 
