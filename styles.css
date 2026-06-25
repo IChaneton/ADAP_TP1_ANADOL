@@ -55,24 +55,26 @@ body {
 .block {
   position: absolute;
   width: 1000px;
-  color: rgba(248, 250, 252, 0.95); /* Blanco brillante más limpio */
-  
-  /* Efecto Cristal Translúcido Avanzado */
+  color: rgba(248, 250, 252, 0.95); 
   background: rgba(15, 23, 42, 0.0); 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  
-  padding: 70px; /* Un poco más de aire interno para lectura académica */
-  border-radius: 6px; /* Bordes industriales, menos redondeados */
-  
-  /* Borde de neón digital sutil y sombra profunda */
+  padding: 70px; 
+  border-radius: 6px; 
   border: 1px solid rgba(56, 189, 248, 0.2);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7),
               0 0 30px rgba(56, 189, 248, 0.03);
-  
   z-index: 1;
   cursor: auto;
+
+  /* NUEVO PARA MÓVILES: Permite que los gestos táctiles atraviesen la caja hacia el canvas */
+  touch-action: none;
+  
+  /* Evita que al arrastrar con el dedo se seleccione el texto pintándose de azul */
+  -webkit-user-select: none;
+  user-select: none; 
 }
+
 
 figure {
   position: absolute;

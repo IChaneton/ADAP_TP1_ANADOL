@@ -36,24 +36,25 @@ const MAPA_NAVEGACION = {
   12: { x: -300, y: 2850, scale: 1 }    // Data Artists
 };
 
-// 1. EVENTO UNIFICADO: HACER CLIC / TOCAR PANTALLA (INICIAR ARRASTRE O PELLIZCO)
+// 1. EVENTO UNIFICADO MÓVIL/DESK: INTERACCIÓN GLOBAL EN TODA LA PANTALLA
 viewport.addEventListener('pointerdown', (e) => {
-  // Evitamos activar el arrastre si interactuamos con botones, menús o textos
-  if (e.target.closest('.block') || e.target.closest('#menu') || e.target.closest('#btn-regresar')) return; 
+  // CORREGIDO: Eliminamos '.block' de la restricción. 
+  // Ahora solo ignoramos el arrastre si tocas los botones fijos del Menú o del Botón Regresar.
+  if (e.target.closest('#menu') || e.target.closest('#btn-regresar')) return; 
   
-  toqueActivo.push(e); // Almacenamos el puntero activo en la lista
+  toqueActivo.push(e); 
   
-  // UN SOLO PUNTERO: Iniciamos arrastre normal (clic o un solo dedo)
+  // UN SOLO PUNTERO: Inicia arrastre (clic o un solo dedo)
   if (toqueActivo.length === 1) {
     isDragging = true;
     startX = e.clientX - posX;
     startY = e.clientY - posY;
     canvas.style.transition = 'none'; 
   } 
-  // DOS PUNTEROS: Iniciamos gesto de pellizco (Zoom en celulares)
+  // DOS PUNTEROS: Inicia gesto de pellizco (Zoom con dos dedos)
   else if (toqueActivo.length === 2) {
-    isDragging = false; // Desactivamos el dragging para evitar saltos bruscos
-    distanciaInicialDedos = calcularDistanciaDosDedos(toqueActivo[0], toqueActivo[1]);
+    isDragging = false; 
+    distanciaInicialDedos = calcularDistanciaDosDedos(toqueActivo, toqueActivo);
     escalaInicialPellizco = scale;
   }
 });

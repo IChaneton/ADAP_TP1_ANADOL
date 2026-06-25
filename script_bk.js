@@ -11,7 +11,6 @@ let historialBloques = [];
 let bloqueActual = 0; 
 let historialCoordenadas = [];
 
-// NUEVA VARIABLE: Guardará el factor de adaptación según el monitor del lector
 let escalaBaseResponsiva = 1; 
 
 // ==========================================
