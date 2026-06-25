@@ -37,14 +37,13 @@ const MAPA_NAVEGACION = {
 };
 
 // ==========================================================
-// EVENTOS DE MANIPULACIÓN UNIFICADOS CON SOPORTE MULTITÁCTIL ESTABLE
+// EVENTOS DE MANIPULACIÓN CON ZOOM CENTRADO MULTITÁCTIL
 // ==========================================================
 
-// 1. EVENTO INICIAR ARRASTRE O PELLIZCO (CORREGIDO)
+// 1. EVENTO INICIAR ARRASTRE O PELLIZCO (CON FOCO CENTRADO)
 viewport.addEventListener('pointerdown', (e) => {
   if (e.target.closest('#menu') || e.target.closest('#btn-regresar')) return; 
   
-  // Agregamos el dedo actual clonando el evento para congelar sus coordenadas nativas
   toqueActivo.push({
     pointerId: e.pointerId,
     clientX: e.clientX,
@@ -59,14 +58,13 @@ viewport.addEventListener('pointerdown', (e) => {
   } 
   else if (toqueActivo.length === 2) {
     isDragging = false; 
-    distanciaInicialDedos = calcularDistanciaDosDedos(toqueActivo[0], toqueActivo[1]);
+    distanciaInicialDedos = calcularDistanciaDosDedos(toqueActivo, toqueActivo);
     escalaInicialPellizco = scale;
   }
 });
 
-// 2. EVENTO MOVER EL MOUSE O LOS DEDOS EN MÓVILES (CORREGIDO)
+// 2. EVENTO MOVER EL MOUSE O LOS DEDOS CON CORRECCIÓN DE DESPLAZAMIENTO
 window.addEventListener('pointermove', (e) => {
-  // Buscamos si el puntero que se movió ya estaba en nuestra lista
   const index = toqueActivo.findIndex(p => p.pointerId === e.pointerId);
   if (index !== -1) {
     toqueActivo[index].clientX = e.clientX;
@@ -79,20 +77,33 @@ window.addEventListener('pointermove', (e) => {
     posY = e.clientY - startY;
     actualizarTransformacion();
   }
-  // ESCENARIO B: Pellizco de Zoom sin congelamientos
+  // ESCENARIO B: Pellizco de Zoom Centrado Matemático
   else if (toqueActivo.length === 2) {
-    const nuevaDistancia = calcularDistanciaDosDedos(toqueActivo[0], toqueActivo[1]);
+    const nuevaDistancia = calcularDistanciaDosDedos(toqueActivo, toqueActivo);
     
-    // Evitamos divisiones por cero si los dedos están superpuestos
     if (distanciaInicialDedos > 0 && nuevaDistancia > 0) {
+      // 1. Encontrar el punto medio geográfico entre los dos dedos en la pantalla actual
+      const centroX = (toqueActivo[0].clientX + toqueActivo[1].clientX) / 2;
+      const centroY = (toqueActivo[0].clientY + toqueActivo[1].clientY) / 2;
+
+      // 2. Traducir ese punto medio al espacio matemático del canvas antes de aplicar el zoom
+      const canvasX = (centroX - posX) / scale;
+      const canvasY = (centroY - posY) / scale;
+
+      // 3. Aplicar el nuevo factor de escala basado en la apertura de los dedos
       const factorPellizco = nuevaDistancia / distanciaInicialDedos;
       scale = Math.max(0.2, Math.min(2, escalaInicialPellizco * factorPellizco));
       
+      // 4. CORRECCIÓN MATEMÁTICA INTERNA: Compensamos posX y posY para amarrar el centro bajo los dedos
+      posX = centroX - canvasX * scale;
+      posY = centroY - canvasY * scale;
+
       canvas.style.transition = 'none'; 
       actualizarTransformacion();
     }
   }
 });
+
 
 // 3. EVENTO SOLTAR CLIC O LEVANTAR DEDOS (MÁXIMA SEGURIDAD)
 const finalizarToque = (e) => {
