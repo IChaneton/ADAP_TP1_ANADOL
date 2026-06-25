@@ -236,9 +236,16 @@ function actualizarBotonRegreso() {
 // INICIALIZACIÓN RESPONSIVA BASADA EN EL ALTO ÚTIL
 window.addEventListener('load', () => {
   const altoDisenoBase = 900;
+  const anchoDisenoBase = 1600;
+
   const altoPantallaUsuario = window.innerHeight;
+  const anchoPantallaUsuario = window.innerWidth;
+  if(anchoPantallaUsuario > altoDisenoBase){
+    escalaBaseResponsiva = Math.max(0.5, Math.min(1.2, altoPantallaUsuario / altoDisenoBase));
+  } else {
+    escalaBaseResponsiva = Math.max(0.5, Math.min(1.2, anchoPantallaUsuario / anchoDisenoBase));
+  }
   
-  escalaBaseResponsiva = Math.max(0.5, Math.min(1.2, altoPantallaUsuario / altoDisenoBase));
 
   posX = 0;
   posY = 0;
