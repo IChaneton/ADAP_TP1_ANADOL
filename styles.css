@@ -259,7 +259,7 @@ a {
 /* ==========================================================
    ADAPTACIONES RESPONSIVAS EXCLUSIVAS PARA SMARTPHONES
    ========================================================== */
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   #menu {
     top: auto;
     bottom: 15px; /* En móviles baja el menú para que se use cómodo con el pulgar */
