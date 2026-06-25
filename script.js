@@ -37,7 +37,7 @@ const MAPA_NAVEGACION = {
 };
 
 // ==========================================================
-// EVENTOS DE MANIPULACIÓN CON ZOOM CENTRADO MULTITÁCTIL (CORREGIDO)
+// EVENTOS MULTITÁCTILES REPARADOS (MATEMÁTICA DE DEDOS CORREGIDA)
 // ==========================================================
 
 // 1. EVENTO INICIAR ARRASTRE O PELLIZCO
@@ -58,12 +58,13 @@ viewport.addEventListener('pointerdown', (e) => {
   } 
   else if (toqueActivo.length === 2) {
     isDragging = false; 
-    distanciaInicialDedos = calcularDistanciaDosDedos(toqueActivo, toqueActivo);
+    // CORREGIDO: Le pasamos explícitamente el primer dedo [0] y el segundo [1]
+    distanciaInicialDedos = calcularDistanciaDosDedos(toqueActivo[0], toqueActivo[1]);
     escalaInicialPellizco = scale;
   }
 });
 
-// 2. EVENTO MOVER EL MOUSE O LOS DEDOS CON DETECCIÓN CORRECTA DE ÍNDICES
+// 2. EVENTO MOVER EL MOUSE O LOS DEDOS EN MÓVILES
 window.addEventListener('pointermove', (e) => {
   const index = toqueActivo.findIndex(p => p.pointerId === e.pointerId);
   if (index !== -1) {
@@ -71,30 +72,25 @@ window.addEventListener('pointermove', (e) => {
     toqueActivo[index].clientY = e.clientY;
   }
 
-  // ESCENARIO A: Arrastre fluido con un solo dedo o ratón
   if (isDragging && toqueActivo.length === 1) {
     posX = e.clientX - startX;
     posY = e.clientY - startY;
     actualizarTransformacion();
   }
-  // ESCENARIO B: Pellizco de Zoom Centrado Matemático Real
   else if (toqueActivo.length === 2) {
-    const nuevaDistancia = calcularDistanciaDosDedos(toqueActivo, toqueActivo);
+    // CORREGIDO: Medimos la nueva distancia pasando el primer dedo [0] y el segundo [1]
+    const nuevaDistancia = calcularDistanciaDosDedos(toqueActivo[0], toqueActivo[1]);
     
     if (distanciaInicialDedos > 0 && nuevaDistancia > 0) {
-      // CORREGIDO: Extraemos las coordenadas individuales de cada uno de los dos dedos
       const centroX = (toqueActivo[0].clientX + toqueActivo[1].clientX) / 2;
       const centroY = (toqueActivo[0].clientY + toqueActivo[1].clientY) / 2;
 
-      // Traducimos el punto medio al espacio del canvas
       const canvasX = (centroX - posX) / scale;
       const canvasY = (centroY - posY) / scale;
 
-      // Calculamos el factor de escala según el movimiento de tus dedos
       const factorPellizco = nuevaDistancia / distanciaInicialDedos;
       scale = Math.max(0.2, Math.min(2, escalaInicialPellizco * factorPellizco));
       
-      // Amárramos el punto de pivote para que no se desplace hacia arriba o hacia los costados
       posX = centroX - canvasX * scale;
       posY = centroY - canvasY * scale;
 
@@ -104,6 +100,12 @@ window.addEventListener('pointermove', (e) => {
   }
 });
 
+// CORREGIDO: Ahora esta función recibe dos puntos individuales limpios, no la lista
+function calcularDistanciaDosDedos(dedo1, dedo2) {
+  const dx = dedo1.clientX - dedo2.clientX;
+  const dy = dedo1.clientY - dedo2.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
 
 
 // 3. EVENTO SOLTAR CLIC O LEVANTAR DEDOS (MÁXIMA SEGURIDAD)
