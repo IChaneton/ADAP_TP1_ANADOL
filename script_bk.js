@@ -10,8 +10,12 @@ const duracionTransicion = 1.5;
 let historialBloques = [];
 let bloqueActual = 0; 
 let historialCoordenadas = [];
-
 let escalaBaseResponsiva = 1; 
+
+// VARIABLES ADICIONALES PARA RASTREO TÁCTIL EN MÓVILES
+let toqueActivo = [];
+let distanciaInicialDedos = 0;
+let escalaInicialPellizco = 1;
 
 // ==========================================
 // CONTROL CENTRALIZADO DE POSICIONES
@@ -24,52 +28,93 @@ const MAPA_NAVEGACION = {
   4: { x: 1200, y: 5750, scale: 1 },   // 4. Materia prima
   5: { x: 1200, y: 7200, scale: 1 },   // 5. Anadol y la IA
   6: { x: 1200, y: 8200, scale: 1 },   // Referencias bibliográficas
-  7: { x: 2500, y: 1900, scale: 1 },    // Gaudi Cube Videos
-  8: { x: -100, y: 1250, scale: 0.9 },    // Antecedentes artísticos
-  9: { x: -100, y: 4000, scale: 0.7 },    // Otros trabajos
-  10: { x: 2500, y: 3550, scale: 0.8 },    // Pioneros
-  11: { x: 100, y: 8190, scale: 0.9 },    // Libros
+  7: { x: 2500, y: 1900, scale: 1 },   // Gaudi Cube Videos
+  8: { x: -100, y: 1250, scale: 0.9 },  // Antecedentes artísticos
+  9: { x: -100, y: 4000, scale: 0.7 },  // Otros trabajos
+  10: { x: 2500, y: 3550, scale: 0.8 }, // Pioneros
+  11: { x: 100, y: 8190, scale: 0.9 },  // Libros
   12: { x: -300, y: 2850, scale: 1 }    // Data Artists
-
-
 };
 
-// 1. EVENTO AL HACER CLIC (INICIAR ARRASTRE)
-canvas.addEventListener('mousedown', (e) => {
-  if (e.target.closest('.block')) return; 
+// 1. EVENTO UNIFICADO MÓVIL/DESK: INTERACCIÓN GLOBAL EN TODA LA PANTALLA
+viewport.addEventListener('pointerdown', (e) => {
+  // CORREGIDO: Eliminamos '.block' de la restricción. 
+  // Ahora solo ignoramos el arrastre si tocas los botones fijos del Menú o del Botón Regresar.
+  if (e.target.closest('#menu') || e.target.closest('#btn-regresar')) return; 
   
-  isDragging = true;
-  startX = e.clientX - posX;
-  startY = e.clientY - posY;
-  canvas.style.transition = 'none'; 
-});
-
-// 2. EVENTO AL MOVER EL MOUSE
-window.addEventListener('mousemove', (e) => {
-  if (!isDragging) return;
+  toqueActivo.push(e); 
   
-  posX = e.clientX - startX;
-  posY = e.clientY - startY;
-  actualizarTransformacion();
+  // UN SOLO PUNTERO: Inicia arrastre (clic o un solo dedo)
+  if (toqueActivo.length === 1) {
+    isDragging = true;
+    startX = e.clientX - posX;
+    startY = e.clientY - posY;
+    canvas.style.transition = 'none'; 
+  } 
+  // DOS PUNTEROS: Inicia gesto de pellizco (Zoom con dos dedos)
+  else if (toqueActivo.length === 2) {
+    isDragging = false; 
+    distanciaInicialDedos = calcularDistanciaDosDedos(toqueActivo, toqueActivo);
+    escalaInicialPellizco = scale;
+  }
 });
 
-// 3. EVENTO AL SOLTAR EL MOUSE
-window.addEventListener('mouseup', () => {
-  isDragging = false;
+// 2. EVENTO UNIFICADO: MOVER EL MOUSE / ARRASTRAR DEDOS
+window.addEventListener('pointermove', (e) => {
+  // Actualizamos las coordenadas del puntero en movimiento dentro de la lista
+  const index = toqueActivo.findIndex(p => p.pointerId === e.pointerId);
+  if (index !== -1) toqueActivo[index] = e;
+
+  // ESCENARIO ARRASTRE FLUIDO (Un solo dedo o ratón presionado)
+  if (isDragging && toqueActivo.length === 1) {
+    posX = e.clientX - startX;
+    posY = e.clientY - startY;
+    actualizarTransformacion();
+  }
+  // ESCENARIO PELLIZCO INTERACTIVO (Dos dedos estirando/encogiendo la pantalla)
+  else if (toqueActivo.length === 2) {
+    const nuevaDistancia = calcularDistanciaDosDedos(toqueActivo[0], toqueActivo[1]);
+    const factorPellizco = nuevaDistancia / distanciaInicialDedos;
+    
+    // El zoom muta suavemente según la separación de tus dedos
+    scale = Math.max(0.2, Math.min(2, escalaInicialPellizco * factorPellizco));
+    
+    canvas.style.transition = 'none'; 
+    actualizarTransformacion();
+  }
 });
 
-// FUNCIÓN ACTUALIZADA: Mueve los bloques y desfasa la retícula infinita al mismo tiempo
+// 3. EVENTO UNIFICADO: SOLTAR CLIC / LEVANTAR DEDOS DE LA PANTALLA
+const finalizarToque = (e) => {
+  // Quitamos el puntero que terminó su acción de la lista
+  toqueActivo = toqueActivo.filter(p => p.pointerId !== e.pointerId);
+  
+  if (toqueActivo.length < 2) {
+    distanciaInicialDedos = 0;
+  }
+  if (toqueActivo.length === 0) {
+    isDragging = false;
+  }
+};
+window.addEventListener('pointerup', finalizarToque);
+window.addEventListener('pointercancel', finalizarToque);
+
+// FUNCIÓN MATEMÁTICA AUXILIAR: Mide la separación física entre dos dedos en tiempo real
+function calcularDistanciaDosDedos(p1, p2) {
+  const dx = p1.clientX - p2.clientX;
+  const dy = p1.clientY - p2.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+// FUNCIÓN GENERAL DE RENDERIZADO: Mueve los bloques y desfasa la retícula al mismo tiempo
 function actualizarTransformacion() {
-  // 1. Desplazamos y escalamos el canvas contenedor de textos
   canvas.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-  
-  // 2. Inyectamos los valores a las variables CSS del viewport para mover la cuadrícula de fondo
   viewport.style.setProperty('--x', `${posX}px`);
   viewport.style.setProperty('--y', `${posY}px`);
   viewport.style.setProperty('--scale', scale);
 }
 
-// 4. EVENTO DE NAVEGACIÓN MULTIDIRECCIONAL DETECTANDO DELTAX
+// 4. EVENTO DE NAVEGACIÓN RUEDA DEL MOUSE (Mantiene compatibilidad de escritorio)
 viewport.addEventListener('wheel', (e) => {
   e.preventDefault();
 
@@ -108,7 +153,6 @@ viewport.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 // 5. NAVEGACIÓN AUTOMÁTICA CON MEMORIA DE COORDENADAS EXACTAS
-// CORREGIDO: Añadido el parámetro 'forzarInstantaneo' para el arranque sin parpadeos
 function irABloque(indice, esRetorno = false, forzarInstantaneo = false) {
   const destino = MAPA_NAVEGACION[indice];
   if (!destino) return;
@@ -129,7 +173,6 @@ function irABloque(indice, esRetorno = false, forzarInstantaneo = false) {
   posX = (window.innerWidth / 2) - (destino.x + (anchoBloque / 2)) * scale;
   posY = margenSuperior - (destino.y * scale);
   
-  // CORREGIDO: Si se solicita salto instantáneo, apaga la animación por completo
   if (forzarInstantaneo) {
     canvas.style.transition = 'none';
   } else {
@@ -139,7 +182,6 @@ function irABloque(indice, esRetorno = false, forzarInstantaneo = false) {
   actualizarTransformacion();
 }
 
-// Viaja al punto exacto del espacio donde estuvo el usuario
 function volverAlBloqueAnterior() {
   if (historialCoordenadas.length === 0) return;
   
@@ -164,22 +206,18 @@ function actualizarBotonRegreso() {
   }
 }
 
-// CORREGIDO: Calcula la escala responsiva adaptada al ALTO del monitor
+// INICIALIZACIÓN RESPONSIVA BASADA EN EL ALTO ÚTIL
 window.addEventListener('load', () => {
-  // Tomamos 1080px (Alto Full HD estándar) como tu base de diseño original
   const altoDisenoBase = 900;
   const altoPantallaUsuario = window.innerHeight;
   
-  // Ej: Si abren la web en una notebook con un alto de 768px, el factor será ~0.71.
-  // Mantenemos los límites de seguridad para proteger la lectura.
   escalaBaseResponsiva = Math.max(0.5, Math.min(1.2, altoPantallaUsuario / altoDisenoBase));
 
   posX = 0;
   posY = 0;
-  scale = escalaBaseResponsiva; // Asignamos el zoom responsivo vertical
+  scale = escalaBaseResponsiva; 
   actualizarTransformacion();
   
-  // Viaja de forma instantánea e invisible a la portada (Bloque 0)
   irABloque(0, false, true); 
   
   historialCoordenadas = [];
@@ -187,5 +225,3 @@ window.addEventListener('load', () => {
   
   canvas.style.opacity = '1';
 });
-
-console.log(historialCoordenadas);

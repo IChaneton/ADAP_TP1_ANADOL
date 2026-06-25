@@ -8,6 +8,11 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden; 
   background-color: #0f172a; 
+  
+  /* OPTIMIZACIÓN MÓVIL CRÍTICA: Bloquea gestos elásticos y recargas nativas por accidente */
+  touch-action: none;
+  -webkit-overscroll-behavior: none;
+  overscroll-behavior: none;
 }
 
 #viewport {
@@ -36,7 +41,7 @@ body {
   height: 10000px;
   top: 0;          
   left: 0;         
-  background-color: transparent; /* CORREGIDO: Transparente para ver la retícula infinita de atrás */
+  background-color: transparent; 
   cursor: grab;
   transform-origin: 0 0; 
   opacity: 0;
@@ -50,62 +55,65 @@ body {
 .block {
   position: absolute;
   width: 1000px;
-  color: rgba(248, 250, 252, 0.95); /* Blanco brillante más limpio */
-  
-  /* Efecto Cristal Translúcido Avanzado */
+  color: rgba(248, 250, 252, 0.95); 
   background: rgba(15, 23, 42, 0.0); 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  
-  padding: 70px; /* Un poco más de aire interno para lectura académica */
-  border-radius: 6px; /* Bordes industriales, menos redondeados */
-  
-  /* Borde de neón digital sutil y sombra profunda */
+  padding: 70px; 
+  border-radius: 6px; 
   border: 1px solid rgba(56, 189, 248, 0.2);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7),
               0 0 30px rgba(56, 189, 248, 0.03);
-  
   z-index: 1;
   cursor: auto;
+
+  /* NUEVO PARA MÓVILES: Permite que los gestos táctiles atraviesen la caja hacia el canvas */
+  touch-action: none;
+  
+  /* Evita que al arrastrar con el dedo se seleccione el texto pintándose de azul */
+  -webkit-user-select: none;
+  user-select: none; 
 }
-figure{
+
+
+figure {
   position: absolute;
   color: rgba(248, 250, 252, 0.95); /* Blanco brillante más limpio */
 }
 
-.transicion{
+.transicion {
   border: none;
-   box-shadow: none;
-   backdrop-filter: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none; /* Asegura compatibilidad en navegadores iOS */
 }
 
-.transicion h1{
+.transicion h1 {
   margin: 50px 0px;
   text-align: center;
   background: transparent;
- border: none;
- 
+  border: none;
   font-size: 70px;
   transform: scaleX(1.8);
   opacity: 20%;
 }
 
-.transicion p{ 
-  
+.transicion p { 
   font-size: 16px;
-
   font-weight: normal;
   opacity: 75%;
 }
-.transicion p:last-of-type{
+
+.transicion p:last-of-type {
   text-align: end;
 }
 
-.media{
+.media {
   width: auto;
   border: red;
 }
-.media p{
+
+.media p {
   text-align: end;
   color: #0f172a;
 }
@@ -113,17 +121,18 @@ figure{
 .block h2 { 
   margin-bottom: 18px; 
 }
+
 /* Subtítulos destacados estilo métricas */
 .block h3 {
   text-align: left;
   margin-top: 30px;
   margin-left: 45px;
   color: #38bdf8; /* Cian digital */
-  
   font-size: 1rem;
   letter-spacing: 1px;
   margin-bottom: 18px;
 }
+
 .block p { 
   color: rgba(255, 255, 255, 0.95);
   line-height: 1.6; 
@@ -131,7 +140,8 @@ figure{
   text-indent: 45px;
   margin-bottom: 10px;
 }
-.enlace-interno{
+
+.enlace-interno {
   color: brown;
   cursor: pointer;
 }
@@ -143,43 +153,49 @@ figure{
   line-height: 1.5;
   color: #94a3b8; /* Gris plata suave */
   
-  
   /* Línea vertical de neón a la izquierda de la cita */
   border-left: 2px solid #38bdf8; 
 }
-.caratula > h1{
-   color: rgba(255, 255, 255, 0.95);
-   font-size: 80px; 
+
+.caratula > h1 {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 80px; 
   margin-bottom: 12px; 
   text-align: center;
 }
-.caratula > h2{
+
+.caratula > h2 {
   text-align: center;
 }
-.caratula h3{
+
+.caratula h3 {
   text-align: end;
 }
-.block ul, ol{
+
+.block ul, .block ol {
   text-align: justify;
   margin-left: 90px;
   line-height: 1.6;
 }
 
-.block ul, ol li:last-child{
+.block ul li:last-child, .block ol li:last-child {
   margin-bottom: 18px;
 }
-.ref-biblio ul{
+
+.ref-biblio ul {
   list-style: none;
   margin: 0px;
-
 }
-.ref-biblio li{
+
+.ref-biblio li {
   text-align: left;
   margin-bottom: 22px;
 }
-a{
-  color:#38bdf8;
+
+a {
+  color: #38bdf8;
 }
+
 /* MENÚ DE NAVEGACIÓN ESTÁTICO */
 #menu {
   position: fixed;
@@ -191,6 +207,7 @@ a{
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 
 #menu h3 { 
@@ -214,21 +231,71 @@ a{
   cursor: pointer;
   border-radius: 6px;
   transition: all 0.2s ease;
+  
+  /* Evita el parpadeo gris molesto al tocar botones en pantallas móviles */
+  -webkit-tap-highlight-color: transparent;
 }
 
 #menu button:hover { 
   background: rgba(255, 255, 255, 0.1); 
   color: #fff; 
 }
-#menu button:last-of-type{
+
+#menu button:last-of-type {
   color: brown;
   font-size: 25px;
   text-align: center;
 }
-#instruccion{
+
+#instruccion {
   color: rgba(248, 250, 252, 0.3); /* Blanco brillante más limpio */
- position: fixed;
- z-index: 100;
+  position: fixed;
+  z-index: 100;
   top: 95vh;
   left: 20px;
+  pointer-events: none; /* Asegura que el texto decorativo inferior no obstruya clics táctiles */
+}
+
+/* ==========================================================
+   ADAPTACIONES RESPONSIVAS EXCLUSIVAS PARA SMARTPHONES
+   ========================================================== */
+@media (max-width: 768px) {
+  #menu {
+    top: auto;
+    bottom: 15px; /* En móviles baja el menú para que se use cómodo con el pulgar */
+    left: 15px;
+    right: 15px;
+    width: auto;
+    max-height: 220px; /* Evita que ocupe toda la pantalla hacia arriba */
+    overflow-y: auto;  /* Permite scroll dentro del menú si tienes muchos bloques */
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;  /* Transforma el menú en una barra horizontal deslizable con el dedo */
+    padding: 10px;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.85); /* Un poco más opaco en móviles para leer mejor */
+  }
+
+  #menu h3 {
+    display: none; /* Ocultamos la palabra "Monografía" en móviles para ganar valioso espacio */
+  }
+
+  #menu button {
+    display: inline-block;
+    width: auto;
+    white-space: nowrap; /* Evita que los nombres de los botones se rompan en dos líneas */
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 0.8rem;
+  }
+  
+  #menu button:last-of-type {
+    font-size: 18px; /* Ajuste proporcional del botón marrón al formato horizontal */
+  }
+
+  #instruccion {
+    display: none; /* Ocultamos el letrero inferior en celulares para limpiar la interfaz */
+  }
 }

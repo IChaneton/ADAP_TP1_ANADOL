@@ -36,57 +36,67 @@ const MAPA_NAVEGACION = {
   12: { x: -300, y: 2850, scale: 1 }    // Data Artists
 };
 
-// 1. EVENTO UNIFICADO MÓVIL/DESK: INTERACCIÓN GLOBAL EN TODA LA PANTALLA
+// ==========================================================
+// EVENTOS DE MANIPULACIÓN UNIFICADOS CON SOPORTE MULTITÁCTIL ESTABLE
+// ==========================================================
+
+// 1. EVENTO INICIAR ARRASTRE O PELLIZCO (CORREGIDO)
 viewport.addEventListener('pointerdown', (e) => {
-  // CORREGIDO: Eliminamos '.block' de la restricción. 
-  // Ahora solo ignoramos el arrastre si tocas los botones fijos del Menú o del Botón Regresar.
   if (e.target.closest('#menu') || e.target.closest('#btn-regresar')) return; 
   
-  toqueActivo.push(e); 
+  // Agregamos el dedo actual clonando el evento para congelar sus coordenadas nativas
+  toqueActivo.push({
+    pointerId: e.pointerId,
+    clientX: e.clientX,
+    clientY: e.clientY
+  });
   
-  // UN SOLO PUNTERO: Inicia arrastre (clic o un solo dedo)
   if (toqueActivo.length === 1) {
     isDragging = true;
     startX = e.clientX - posX;
     startY = e.clientY - posY;
     canvas.style.transition = 'none'; 
   } 
-  // DOS PUNTEROS: Inicia gesto de pellizco (Zoom con dos dedos)
   else if (toqueActivo.length === 2) {
     isDragging = false; 
-    distanciaInicialDedos = calcularDistanciaDosDedos(toqueActivo, toqueActivo);
+    distanciaInicialDedos = calcularDistanciaDosDedos(toqueActivo[0], toqueActivo[1]);
     escalaInicialPellizco = scale;
   }
 });
 
-// 2. EVENTO UNIFICADO: MOVER EL MOUSE / ARRASTRAR DEDOS
+// 2. EVENTO MOVER EL MOUSE O LOS DEDOS EN MÓVILES (CORREGIDO)
 window.addEventListener('pointermove', (e) => {
-  // Actualizamos las coordenadas del puntero en movimiento dentro de la lista
+  // Buscamos si el puntero que se movió ya estaba en nuestra lista
   const index = toqueActivo.findIndex(p => p.pointerId === e.pointerId);
-  if (index !== -1) toqueActivo[index] = e;
+  if (index !== -1) {
+    toqueActivo[index].clientX = e.clientX;
+    toqueActivo[index].clientY = e.clientY;
+  }
 
-  // ESCENARIO ARRASTRE FLUIDO (Un solo dedo o ratón presionado)
+  // ESCENARIO A: Arrastre fluido con un solo dedo o ratón
   if (isDragging && toqueActivo.length === 1) {
     posX = e.clientX - startX;
     posY = e.clientY - startY;
     actualizarTransformacion();
   }
-  // ESCENARIO PELLIZCO INTERACTIVO (Dos dedos estirando/encogiendo la pantalla)
+  // ESCENARIO B: Pellizco de Zoom sin congelamientos
   else if (toqueActivo.length === 2) {
     const nuevaDistancia = calcularDistanciaDosDedos(toqueActivo[0], toqueActivo[1]);
-    const factorPellizco = nuevaDistancia / distanciaInicialDedos;
     
-    // El zoom muta suavemente según la separación de tus dedos
-    scale = Math.max(0.2, Math.min(2, escalaInicialPellizco * factorPellizco));
-    
-    canvas.style.transition = 'none'; 
-    actualizarTransformacion();
+    // Evitamos divisiones por cero si los dedos están superpuestos
+    if (distanciaInicialDedos > 0 && nuevaDistancia > 0) {
+      const factorPellizco = nuevaDistancia / distanciaInicialDedos;
+      scale = Math.max(0.2, Math.min(2, escalaInicialPellizco * factorPellizco));
+      
+      canvas.style.transition = 'none'; 
+      actualizarTransformacion();
+    }
   }
 });
 
-// 3. EVENTO UNIFICADO: SOLTAR CLIC / LEVANTAR DEDOS DE LA PANTALLA
+// 3. EVENTO SOLTAR CLIC O LEVANTAR DEDOS (MÁXIMA SEGURIDAD)
 const finalizarToque = (e) => {
-  // Quitamos el puntero que terminó su acción de la lista
+  // Filtramos el dedo que se levantó
   toqueActivo = toqueActivo.filter(p => p.pointerId !== e.pointerId);
   
   if (toqueActivo.length < 2) {
@@ -96,8 +106,11 @@ const finalizarToque = (e) => {
     isDragging = false;
   }
 };
+
+// Vinculamos todas las vías de escape del dedo para evitar que el script quede "atrapado"
 window.addEventListener('pointerup', finalizarToque);
 window.addEventListener('pointercancel', finalizarToque);
+window.addEventListener('pointerleave', finalizarToque);
 
 // FUNCIÓN MATEMÁTICA AUXILIAR: Mide la separación física entre dos dedos en tiempo real
 function calcularDistanciaDosDedos(p1, p2) {
