@@ -243,7 +243,7 @@ window.addEventListener('load', () => {
   if(anchoPantallaUsuario > altoDisenoBase){
     escalaBaseResponsiva = Math.max(0.5, Math.min(1.2, altoPantallaUsuario / altoDisenoBase));
   } else {
-    escalaBaseResponsiva = Math.max(0.5, Math.min(1.2, anchoPantallaUsuario / anchoDisenoBase)) * 0.9;
+    escalaBaseResponsiva = Math.max(0.5, Math.min(1.2, anchoPantallaUsuario / anchoDisenoBase)) * 0.8;
   }
   
 
