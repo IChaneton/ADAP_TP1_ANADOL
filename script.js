@@ -27,7 +27,9 @@ const MAPA_NAVEGACION = {
   6: { x: 1200, y: 8200, scale: 1 },   // Referencias bibliográficas
   7: { x: 2500, y: 1900, scale: 1 },    // Gaudi Cube Videos
   8: { x: -100, y: 1250, scale: 0.6 },    // Antecedentes
-  9: { x: -100, y: 4000, scale: 0.7 }    // Otros trabajos
+  9: { x: -100, y: 4000, scale: 0.7 },    // Otros trabajos
+  10: { x: 2500, y: 3450, scale: 0.8 },    // Pioneros
+  11: { x: 100, y: 8190, scale: 0.9 }    // Pioneros
 
 
 };
