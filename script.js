@@ -28,12 +28,12 @@ const MAPA_NAVEGACION = {
   4: { x: 1200, y: 5750, scale: 1 },   // 4. Materia prima
   5: { x: 1200, y: 7200, scale: 1 },   // 5. Anadol y la IA
   6: { x: 1200, y: 8200, scale: 1 },   // Referencias bibliográficas
-  7: { x: 2500, y: 1900, scale: 1 },   // Gaudi Cube Videos
-  8: { x: -100, y: 1250, scale: 0.9 },  // Antecedentes artísticos
+  7: { x: 2500, y: 2150, scale: 1 },   // Gaudi Cube Videos
+  8: { x: -100, y: 1400, scale: 0.9 },  // pioneros artísticos
   9: { x: -100, y: 4000, scale: 0.7 },  // Otros trabajos
-  10: { x: 2500, y: 3550, scale: 0.8 }, // Pioneros
+  10: { x: 2500, y: 3550, scale: 0.8 }, // Pioneros de lo digital
   11: { x: 50, y: 8190, scale: 0.9 },  // Libros
-  12: { x: -300, y: 2850, scale: 1 }    // Data Artists
+  12: { x: -300, y: 2400, scale: 1 }    // Data Artists
 };
 
 // ==========================================================
