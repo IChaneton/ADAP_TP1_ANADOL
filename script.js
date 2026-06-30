@@ -25,9 +25,9 @@ const MAPA_NAVEGACION = {
   1: { x: 1200, y: 1000, scale: 1 },   // 1. Sobre Refik Anadol
   2: { x: 1200, y: 1450, scale: 1 },   // 2. Antecedentes
   3: { x: 1200, y: 2150, scale: 1 },   // 3. En la mente de Gaudí
-  4: { x: 1200, y: 5750, scale: 1 },   // 4. Materia prima
-  5: { x: 1200, y: 7200, scale: 1 },   // 5. Anadol y la IA
-  6: { x: 1200, y: 8200, scale: 1 },   // Referencias bibliográficas
+  4: { x: 1200, y: 5810, scale: 1 },   // 4. Materia prima
+  5: { x: 1200, y: 7250, scale: 1 },   // 5. Anadol y la IA
+  6: { x: 1200, y: 8250, scale: 1 },   // Referencias bibliográficas
   7: { x: 2500, y: 2150, scale: 1 },   // Gaudi Cube Videos
   8: { x: -100, y: 1400, scale: 0.9 },  // pioneros artísticos
   9: { x: -100, y: 4000, scale: 0.7 },  // Otros trabajos
